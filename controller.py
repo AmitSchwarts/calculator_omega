@@ -1,7 +1,7 @@
 import model
 
 
-def solve(text: str, priority: int) -> int or float:
+def solve(text: str, priority: int) -> float:
     text = delete_unwonted_chars(text)
     still_complex = False
     for char in text:
@@ -10,6 +10,10 @@ def solve(text: str, priority: int) -> int or float:
             if model.priority_dictionary[char] == priority:
                 operand1 = solve(text.split(char, 1)[0], priority)
                 operand2 = solve(text.split(char, 1)[1], priority)
+                if char.__eq__("!") and operand2.__eq__("") and is_number(str(operand1)):
+                    return model.functions_dictionary[char](str(operand1))
+                elif char.__eq__("~") and operand1.__eq__("") and is_number(str(operand2)):
+                    return model.functions_dictionary[char](str(operand2))
                 if are_numbers(str(operand1), str(operand2)):
                     return model.functions_dictionary[char](str(operand1), str(operand2))
     if still_complex:
@@ -19,13 +23,14 @@ def solve(text: str, priority: int) -> int or float:
 
 
 def are_numbers(operand1: str, operand2: str) -> bool:
-    if operand1.replace('.', '').replace('-', '').isdigit():
-        if operand2.replace('.', '').replace('-', '').isdigit():
-            return True
-        print(operand2+" is not a number")
-        False
-    print(operand1 + " is not a number")
-    False
+    return is_number(operand1) and is_number(operand2)
+
+
+def is_number(operand: str) -> bool:
+    if operand.replace('.', '').replace('-', '').isdigit():
+        return True
+    print(operand+" is not a number")
+    return False
 
 
 def delete_unwonted_chars(text: str) -> str:

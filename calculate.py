@@ -42,7 +42,7 @@ def minimum(operand1: str, operand2: str) -> float:
 
 
 def avg(operand1: str, operand2: str) -> float:
-    return (operand1+operand2) / 2.0
+    return div(add(operand1, operand2), 2.0)
 
 
 def neg(operand: str) -> str:
@@ -51,6 +51,6 @@ def neg(operand: str) -> str:
 
 def factorial(operand: str) -> int:
     ret = 1
-    for num in range(2, float(operand) + 1):
-        ret = ret * num
+    for num in range(2, int(operand)+1):
+        ret = mul(ret, num)
     return ret
