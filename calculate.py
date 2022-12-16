@@ -13,7 +13,7 @@ def mul(operand1: str, operand2: str) -> float:
     return float(operand1) * float(operand2)
 
 
-def div(operand1: str, operand2: str) -> int:
+def div(operand1: str, operand2: str) -> float:
     return float(operand1) / float(operand2)
 
 
@@ -21,7 +21,7 @@ def power(operand1: str, operand2: str) -> int or float:
     return math.pow(float(operand1), float(operand2))
 
 
-def modulo(operand1: str, operand2: str) -> int:
+def modulo(operand1: str, operand2: str) -> float:
     return float(operand1) % float(operand2)
 
 

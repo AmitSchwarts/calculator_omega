@@ -1,15 +1,14 @@
 import input_output
 import controller
 
-START_PRIORITY = 1
-
 
 def main():
     input_output.opening()
     text = input_output.get_input()
     while not text.__eq__("end"):
-        ret = controller.solve(text, START_PRIORITY)
-        if ret is not None:
+        text = controller.delete_unwonted_chars(text)
+        ret = controller.solve(text, controller.min_priority(text))
+        if controller.is_number(str(ret)):
             input_output.print_result(ret)
         text = input_output.get_input()
 
