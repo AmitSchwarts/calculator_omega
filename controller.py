@@ -52,9 +52,11 @@ def delete_unwonted_chars(text: str) -> str:
     if text.__eq__(""):
         error.empty()
         return None, False
+    if not check_tilda(text):
+        return None, False
+    text = handle_tilda(text)
     text = handle_signs(text)
-    answer = check_parentheses(text)
-    if not answer:
+    if not check_parentheses(text):
         return None, False
     return handle_parentheses(text), True
 
@@ -132,3 +134,46 @@ def check_parentheses(text: str) -> bool:
         return False
     else:
         return True
+
+
+def check_tilda(text: str) -> bool:
+    got_tilda = False
+    for char in text:
+        if got_tilda:
+            if not is_number(char) and not char.__eq__('-'):
+                error.tilda_after_tilda()
+                return False
+            elif is_number(char):
+                got_tilda = False
+        if char.__eq__('~'):
+            got_tilda = True
+    if got_tilda:
+        error.missing_number('~', "after")
+        return False
+    return True
+
+
+def handle_tilda(text: str):
+    ret = ""
+    num_before = False
+    for char in text:
+        if char.__eq__('~'):
+            if num_before:
+                ret += '-'
+            else:
+                ret += '~'
+                num_before = False
+        elif char.__eq__('-'):
+            if num_before:
+                ret += '-'
+            else:
+                ret += '~'
+                num_before = False
+        elif is_number(char) or char.__eq__('.'):
+            num_before = True
+            ret += char
+        else:
+            num_before = False
+            ret += char
+    return ret
+
