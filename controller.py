@@ -13,20 +13,29 @@ def solve(text: str, priority: int) -> float or str:
                     if are_numbers(str(operand1), str(operand2)):
                         return model.functions_dict_middle[char](str(operand1), str(operand2))
                     elif char not in model.functions_dict_left:
-                        error.print_error("not a number - ", what_not_number(str(operand1), str(operand2)))
-                elif char in model.functions_dict_left:
-                    if is_number(str(operand2)):
-                        return model.functions_dict_left[char](str(operand2))
-                elif char in model.functions_dict_right:
-                    if is_number(str(operand1)):
-                        return model.functions_dict_right[char](str(operand1))
+                        error.missing_number(char, before_or_after(str(operand1), str(operand2)))
+                if char in model.functions_dict_left or char in model.functions_dict_right:
+                    if char in model.functions_dict_left and is_number(str(operand2)):
+                        if not is_number(str(operand1)):
+                            return model.functions_dict_left[char](str(operand2))
+                        else:
+                            error.invalid_character(str(operand1))
+                    elif char in model.functions_dict_right and is_number(str(operand1)):
+                        if not is_number(str(operand2)):
+                            return model.functions_dict_right[char](str(operand1))
+                        else:
+                            error.invalid_character(str(operand2))
+                    else:
+                        error.missing_number(char, before_or_after(str(operand1), str(operand2)))
+        elif not is_number(char) and not char.__eq__('.'):
+            error.invalid_character(char)
     return text
 
 
-def what_not_number(operand1: str, operand2: str) -> bool:
+def before_or_after(operand1: str, operand2: str) -> str:
     if is_number(operand1):
-        return operand2
-    return operand1
+        return "after"
+    return "before"
 
 
 def are_numbers(operand1: str, operand2: str) -> bool:
@@ -34,15 +43,20 @@ def are_numbers(operand1: str, operand2: str) -> bool:
 
 
 def is_number(operand: str) -> bool:
-    if operand.replace('.', '').replace('-', '').isdigit():
-        return True
-    return False
+    return operand.replace('.', '').replace('-', '').isdigit()
 
 
 def delete_unwonted_chars(text: str) -> str:
     text = text.replace(" ", "")
+    text = text.replace("\t", "")
+    if text.__eq__(""):
+        error.empty()
+        return None, False
     text = handle_signs(text)
-    return text
+    answer = check_parentheses(text)
+    if not answer:
+        return None, False
+    return handle_parentheses(text), True
 
 
 def handle_signs(text: str) -> str:
@@ -73,3 +87,48 @@ def min_priority(text: str) -> int:
             if model.priority_dictionary[char] < min_prio:
                 min_prio = model.priority_dictionary[char]
     return min_prio
+
+
+def reset():
+    model.got_error = False
+
+
+def handle_parentheses(text: str) -> str:
+    ret = ""
+    solv = ""
+    flag_start = False
+    for char in text:
+        if char.__eq__('('):
+            flag_start = True
+        elif char.__eq__(')'):
+            flag_start = False
+            ret += str(solve(solv, min_priority(solv)))
+            solv = ""
+        elif flag_start:
+            solv += char
+        elif not flag_start:
+            ret += char
+    return ret
+
+
+def check_parentheses(text: str) -> bool:
+    lst = 0
+    flag_start = True
+    for char in text:
+        if char.__eq__('('):
+            flag_start = False
+            lst += 1
+        elif char.__eq__(')'):
+            if not flag_start:
+                flag_start = True
+                lst -= 1
+            else:
+                return False
+    if lst > 0:
+        error.invalid_character('(')
+        return False
+    elif lst < 0:
+        error.invalid_character(')')
+        return False
+    else:
+        return True

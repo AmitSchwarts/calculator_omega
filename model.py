@@ -7,4 +7,5 @@ functions_dict_middle = {'+': calculate.add, '-': calculate.sub, '*': calculate.
                          '^': calculate.power, '%': calculate.modulo, '$': calculate.maximum, '&': calculate.minimum,
                          '@': calculate.avg}
 functions_dict_left = {'-': calculate.neg, '~': calculate.neg}
-functions_dict_right = {'!': calculate.factorial}
+functions_dict_right = {'!': calculate.factorial, '#': calculate.sum_digits}
+got_error = False

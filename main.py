@@ -6,11 +6,14 @@ def main():
     input_output.opening()
     text = input_output.get_input()
     while not text.__eq__("end"):
-        text = controller.delete_unwonted_chars(text)
-        ret = controller.solve(text, controller.min_priority(text))
-        if controller.is_number(str(ret)):
-            input_output.print_result(ret)
+        text, check = controller.delete_unwonted_chars(text)
+        if check:
+            ret = controller.solve(text, controller.min_priority(text))
+            if controller.is_number(str(ret)):
+                input_output.print_result(ret)
+        controller.reset()
         text = input_output.get_input()
+    input_output.closing()
 
 
 if __name__ == "__main__":

@@ -1,3 +1,5 @@
+import error
+
 
 def opening():
     print("Hello and welcome to the Omega calculator:\n"
@@ -11,7 +13,8 @@ def opening():
           " $ : use for calc maximum \n"
           " @ : use for calc average \n"
           " ~ : use for change sign to a number \n"
-          " ! : use for calc factorial \n\n"
+          " ! : use for calc factorial \n"
+          " # : use for calc sum of digits \n\n"
           "lets start :-)\n")
 
 
@@ -22,3 +25,7 @@ def get_input():
 
 def print_result(result):
     print(result)
+
+
+def closing():
+    print("I hope you enjoy from my calculator - Goodbye")

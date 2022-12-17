@@ -1,4 +1,6 @@
 import math
+import error
+import controller
 
 
 def add(operand1: str, operand2: str) -> float:
@@ -14,15 +16,21 @@ def mul(operand1: str, operand2: str) -> float:
 
 
 def div(operand1: str, operand2: str) -> float:
-    return float(operand1) / float(operand2)
+    try:
+        return float(operand1) / float(operand2)
+    except ZeroDivisionError:
+        error.zero_division()
 
 
-def power(operand1: str, operand2: str) -> int or float:
+def power(operand1: str, operand2: str) -> float:
     return math.pow(float(operand1), float(operand2))
 
 
 def modulo(operand1: str, operand2: str) -> float:
-    return float(operand1) % float(operand2)
+    try:
+        return float(operand1) % float(operand2)
+    except ZeroDivisionError:
+        error.zero_division()
 
 
 def maximum(operand1: str, operand2: str) -> float:
@@ -50,7 +58,23 @@ def neg(operand: str) -> str:
 
 
 def factorial(operand: str) -> int:
-    ret = 1
-    for num in range(2, int(operand)+1):
-        ret = mul(ret, num)
+    try:
+        ret = 1
+        for num in range(2, int(operand)+1):
+            ret = mul(ret, num)
+        return ret
+    except ValueError:
+        error.factorial_operand_not_int(operand)
+
+
+def sum_digits(operand: str) -> int:
+    work_on = 0
+    ret = 0
+    for char in operand:
+        ret += float(char)
+    while ret > 10:
+        work_on = ret
+        ret = 0
+        for char in work_on:
+            ret += float(char)
     return ret
