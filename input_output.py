@@ -24,7 +24,7 @@ def get_input():
         return input()
     except EOFError:
         error.eof_error()
-        get_input()
+        return
 
 
 def print_result(result):

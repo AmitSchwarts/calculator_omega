@@ -1,6 +1,6 @@
 import math
 import error
-import controller
+import model
 
 
 def add(operand1: str, operand2: str) -> float:
@@ -57,7 +57,7 @@ def minimum(operand1: str, operand2: str) -> float:
 
 
 def avg(operand1: str, operand2: str) -> float:
-    return div(add(operand1, operand2), 2.0)
+    return div(str(add(operand1, operand2)), str(2.0))
 
 
 def neg(operand: str) -> float:
@@ -65,20 +65,19 @@ def neg(operand: str) -> float:
 
 
 def factorial(operand: str) -> int:
-    if operand.__contains__('~') or operand.__contains__('-'):
-        error.factorial_operand_not_int(operand)
+    if operand.__contains__('~') or operand.__contains__('-') or not model.neg % 2 == 0:
+        error.factorial_negative(operand)
         return
     try:
         ret = 1
         for num in range(2, int(operand)+1):
-            ret = mul(ret, num)
+            ret = mul(str(ret), str(num))
         return ret
     except ValueError:
         error.factorial_operand_not_int(operand)
 
 
 def sum_digits(operand: str) -> int:
-    work_on = 0
     ret = 0
     for char in operand:
         ret += float(char)

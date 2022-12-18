@@ -8,14 +8,19 @@ def solve(text: str, priority: int) -> float or str:
             if model.priority_dictionary[char] == priority:
                 split = text.split(char, 1)
                 if char in model.functions_dict_middle:
-                    operand1 = solve(split[0], min_priority(split[0]))
-                    operand2 = solve(split[1], min_priority(split[1]))
-                    if are_numbers(str(operand1), str(operand2)):
-                        return model.functions_dict_middle[char](str(operand1), str(operand2))
-                    elif char not in model.functions_dict_left:
-                        error.missing_number(char, before_or_after(str(operand1), str(operand2)))
+                    if char not in model.functions_dict_left or sub_or_neg(str(split[0]), str(split[1])).__eq__("sub"):
+                        operand1 = solve(str(split[0]), min_priority(str(split[0])))
+                        operand2 = solve(str(split[1]), min_priority(str(split[1])))
+                        if are_numbers(str(operand1), str(operand2)):
+                            return model.functions_dict_middle[char](str(operand1), str(operand2))
+                        else:
+                            error.missing_number(char, before_or_after(str(operand1), str(operand2)))
+                            return
                 if char in model.functions_dict_left or char in model.functions_dict_right:
                     if char in model.functions_dict_left:
+                        if char.__eq__('~') or char.__eq__('-'):
+                            model.neg += 1
+                            model.neg += how_many_minus(str(split[0]))
                         operand2 = solve(split[1], min_priority(split[1]))
                         if is_number(str(operand2)):
                             return model.functions_dict_left[char](str(operand2))
@@ -25,8 +30,10 @@ def solve(text: str, priority: int) -> float or str:
                             return model.functions_dict_right[char](str(operand1))
                     else:
                         error.missing_number(char, before_or_after(str(operand1), str(operand2)))
+                        return
         elif not is_number(char) and not char.__eq__('.'):
             error.invalid_character(char)
+            return
     return text
 
 
@@ -44,7 +51,7 @@ def is_number(operand: str) -> bool:
     return operand.replace('.', '').replace('-', '').isdigit()
 
 
-def delete_unwonted_chars(text: str) -> str:
+def delete_unwonted_chars(text: str) -> tuple:
     text = text.replace(" ", "")
     text = text.replace("\t", "")
     if text.__eq__(""):
@@ -53,6 +60,8 @@ def delete_unwonted_chars(text: str) -> str:
     text = handle_signs(text)
     if not check_tilda(text):
         return None, False
+    if text.__contains__('-'):
+        text = add_necessary_parentheses(text, '-')
     if not check_parentheses(text):
         return None, False
     return handle_parentheses(text), True
@@ -63,7 +72,7 @@ def handle_signs(text: str) -> str:
     between_two = 0
     text = ""
     for check in check_minus:
-        if check.__eq__(""):
+        if check.__eq__("") or not is_number(check):
             if between_two.__eq__(1):
                 text += "+"
             between_two = 0
@@ -105,7 +114,7 @@ def handle_parentheses(text: str) -> str:
             solv = ""
         elif flag_start:
             solv += char
-        elif not flag_start:
+        else:
             ret += char
     return ret
 
@@ -119,8 +128,9 @@ def check_parentheses(text: str) -> bool:
             lst += 1
         elif char.__eq__(')'):
             if not flag_start:
-                flag_start = True
                 lst -= 1
+                if lst.__eq__(0):
+                    flag_start = True
             else:
                 return False
     if lst > 0:
@@ -156,3 +166,38 @@ def check_tilda(text: str) -> bool:
         error.missing_number('~', "after")
         return False
     return True
+
+
+def sub_or_neg(operand1: str, operand2: str) -> str:
+    if operand1.__eq__(""):
+        return "neg"
+    for char in operand1:
+        if not char.__eq__("-") and not char.__eq__("~"):
+            return "sub"
+    return "neg"
+
+
+def add_necessary_parentheses(text: str, char) -> str:
+    ret = ""
+    every_two = 0
+    check = text.split(char)
+    ret += '('*(len(check)-1)
+    for part in check:
+        ret += part
+        every_two += 1
+        if every_two.__eq__(2):
+            ret += ')'
+            every_two = 1
+        ret += char
+    ret = ret[::-1]
+    ret = ret.replace(char, '', 1)
+    ret = ret[::-1]
+    return ret
+
+
+def how_many_minus(text: str) -> int:
+    count = 0
+    for char in text:
+        if char.__eq__("-") or char.__eq__("~"):
+            count += 1
+    return count
