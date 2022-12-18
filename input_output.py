@@ -19,6 +19,10 @@ def opening():
 
 
 def get_input():
+    """
+    get input from user
+    :return: text that the program need to solve
+    """
     print("Insert an equation: ")
     try:
         return input()
@@ -28,6 +32,11 @@ def get_input():
 
 
 def print_result(result):
+    """
+    print result to user
+    :param result:
+    :return:
+    """
     print(result)
 
 

@@ -4,8 +4,8 @@ import error
 
 def solve(text: str, priority: int) -> float or str:
     for char in text:
-        if char in model.priority_dictionary:
-            if model.priority_dictionary[char] == priority:
+        if char in model.priority_dictionary:  # char is an operator
+            if model.priority_dictionary[char] == priority:  # operator is in the correct level of priority
                 split = text.split(char, 1)
                 if char in model.functions_dict_middle:
                     if char not in model.functions_dict_left or sub_or_neg(str(split[0]), str(split[1])).__eq__("sub"):
@@ -34,24 +34,47 @@ def solve(text: str, priority: int) -> float or str:
         elif not is_number(char) and not char.__eq__('.'):
             error.invalid_character(char)
             return
-    return float(text)
+    return text
 
 
 def before_or_after(operand1: str, operand2: str) -> str:
+    """
+    return if num is missing before or after the operator
+    :param operand1:
+    :param operand2:
+    :return:
+    """
     if is_number(operand1):
         return "after"
     return "before"
 
 
 def are_numbers(operand1: str, operand2: str) -> bool:
+    """
+    return if both are numbers
+    :param operand1:
+    :param operand2:
+    :return:
+    """
     return is_number(operand1) and is_number(operand2)
 
 
 def is_number(operand: str) -> bool:
+    """
+    return if operand is number
+    :param operand:
+    :return:
+    """
     return operand.replace('.', '').replace('-', '').isdigit()
 
 
 def delete_unwonted_chars(text: str) -> tuple:
+    """
+    Get rid of irrelevant notes, perform preliminary checks
+    and make updates to the equation that will help to solve it
+    :param text:
+    :return: text to solve
+    """
     text = text.replace(" ", "")
     text = text.replace("\t", "")
     if text.__eq__(""):
@@ -68,6 +91,12 @@ def delete_unwonted_chars(text: str) -> tuple:
 
 
 def handle_signs(text: str) -> str:
+    """
+    The function reduces combinations of minuses with pluses and tildes
+    with the separation of use as sub or as neg
+    :param text:
+    :return:
+    """
     check_minus = text.split("--")
     between_two = 0
     text = ""
@@ -92,6 +121,11 @@ def handle_signs(text: str) -> str:
 
 
 def min_priority(text: str) -> int:
+    """
+    Returns the minimum precedence in text
+    :param text:
+    :return:
+    """
     min_prio = model.MAX_PRIORITY
     for char in text:
         if char in model.priority_dictionary:
@@ -101,11 +135,24 @@ def min_priority(text: str) -> int:
 
 
 def reset():
+    """
+    reset the model in the end of equation
+    :return:
+    """
     model.got_error = False
     neg = 0
 
 
 def handle_parentheses(text: str) -> str:
+    """
+    In order to treat the parentheses as having first priority,
+    the function executes what is inside the parentheses
+    (before the large solution function)
+    by treating what is in the parentheses as another equation
+    and returns the result inside the equation that will be solved later
+    :param text:
+    :return:
+    """
     ret = ""
     solv = ""
     flag_start = False
@@ -128,6 +175,11 @@ def handle_parentheses(text: str) -> str:
 
 
 def check_parentheses(text: str) -> bool:
+    """
+    Correctness tests of brackets
+    :param text:
+    :return:
+    """
     lst = 0
     flag_start = True
     for char in text:
@@ -152,6 +204,11 @@ def check_parentheses(text: str) -> bool:
 
 
 def check_tilda(text: str) -> bool:
+    """
+    Correctness tests of tildes
+    :param text:
+    :return:
+    """
     got_tilda = False
     before_is_okay = True
     for char in text:
@@ -177,6 +234,12 @@ def check_tilda(text: str) -> bool:
 
 
 def sub_or_neg(operand1: str, operand2: str) -> str:
+    """
+    return if the "-" be use as sub or neg minus
+    :param operand1:
+    :param operand2:
+    :return:
+    """
     if operand1.__eq__(""):
         return "neg"
     for char in operand1:
@@ -189,6 +252,13 @@ def sub_or_neg(operand1: str, operand2: str) -> str:
 
 
 def add_necessary_parentheses(text: str, char: str) -> str:
+    """
+    Adding parentheses in order to create an order
+    of precedence between the same type of operator
+    :param text:
+    :param char:
+    :return:
+    """
     ret = ""
     every_two = 0
     check = text.split(char)
@@ -207,6 +277,11 @@ def add_necessary_parentheses(text: str, char: str) -> str:
 
 
 def how_many_minus(text: str) -> int:
+    """
+    check how many minuses in text
+    :param text:
+    :return:
+    """
     count = 0
     for char in text:
         if char.__eq__("-") or char.__eq__("~"):
@@ -215,6 +290,12 @@ def how_many_minus(text: str) -> int:
 
 
 def contains_only(text: str, char: str) -> bool:
+    """
+    check if text contains only the char that was giving
+    :param text:
+    :param char:
+    :return:
+    """
     for check in text:
         if not check.__eq__(char):
             return False

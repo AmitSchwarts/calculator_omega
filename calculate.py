@@ -70,7 +70,7 @@ def factorial(operand: str) -> int:
         return
     try:
         ret = 1
-        for num in range(2, int(float(operand))+1):
+        for num in range(2, int(float(operand)) + 1):
             ret = mul(str(ret), str(num))
         return ret
     except ValueError:
@@ -81,7 +81,7 @@ def sum_digits(operand: str) -> int:
     ret = 0
     check_after = False
     for char in operand:
-        if not char.__eq__('.') and not check_after:
+        if not char.__eq__('.') and not check_after:  # check only what can be int, not float
             ret += float(char)
         elif char.__eq__('.'):
             check_after = True
