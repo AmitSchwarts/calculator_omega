@@ -23,7 +23,14 @@ def div(operand1: str, operand2: str) -> float:
 
 
 def power(operand1: str, operand2: str) -> float:
-    return math.pow(float(operand1), float(operand2))
+    if operand1.__eq__('0') and operand2.__eq__('0'):
+        error.zero_power()
+        return
+    solv = math.pow(float(operand1), float(operand2))
+    if type(solv) is complex:
+        error.complex_num()
+        return
+    return solv
 
 
 def modulo(operand1: str, operand2: str) -> float:
@@ -53,11 +60,14 @@ def avg(operand1: str, operand2: str) -> float:
     return div(add(operand1, operand2), 2.0)
 
 
-def neg(operand: str) -> str:
-    return "-"+operand
+def neg(operand: str) -> float:
+    return -float(operand)
 
 
 def factorial(operand: str) -> int:
+    if operand.__contains__('~') or operand.__contains__('-'):
+        error.factorial_operand_not_int(operand)
+        return
     try:
         ret = 1
         for num in range(2, int(operand)+1):

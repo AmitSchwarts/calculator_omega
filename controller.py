@@ -7,24 +7,22 @@ def solve(text: str, priority: int) -> float or str:
         if char in model.priority_dictionary:
             if model.priority_dictionary[char] == priority:
                 split = text.split(char, 1)
-                operand1 = solve(split[0], min_priority(split[0]))
-                operand2 = solve(split[1], min_priority(split[1]))
                 if char in model.functions_dict_middle:
+                    operand1 = solve(split[0], min_priority(split[0]))
+                    operand2 = solve(split[1], min_priority(split[1]))
                     if are_numbers(str(operand1), str(operand2)):
                         return model.functions_dict_middle[char](str(operand1), str(operand2))
                     elif char not in model.functions_dict_left:
                         error.missing_number(char, before_or_after(str(operand1), str(operand2)))
                 if char in model.functions_dict_left or char in model.functions_dict_right:
-                    if char in model.functions_dict_left and is_number(str(operand2)):
-                        if not is_number(str(operand1)):
+                    if char in model.functions_dict_left:
+                        operand2 = solve(split[1], min_priority(split[1]))
+                        if is_number(str(operand2)):
                             return model.functions_dict_left[char](str(operand2))
-                        else:
-                            error.invalid_character(str(operand1))
-                    elif char in model.functions_dict_right and is_number(str(operand1)):
-                        if not is_number(str(operand2)):
+                    elif char in model.functions_dict_right:
+                        operand1 = solve(split[0], min_priority(split[0]))
+                        if is_number(str(operand1)):
                             return model.functions_dict_right[char](str(operand1))
-                        else:
-                            error.invalid_character(str(operand2))
                     else:
                         error.missing_number(char, before_or_after(str(operand1), str(operand2)))
         elif not is_number(char) and not char.__eq__('.'):
@@ -52,10 +50,9 @@ def delete_unwonted_chars(text: str) -> str:
     if text.__eq__(""):
         error.empty()
         return None, False
+    text = handle_signs(text)
     if not check_tilda(text):
         return None, False
-    text = handle_tilda(text)
-    text = handle_signs(text)
     if not check_parentheses(text):
         return None, False
     return handle_parentheses(text), True
@@ -138,42 +135,24 @@ def check_parentheses(text: str) -> bool:
 
 def check_tilda(text: str) -> bool:
     got_tilda = False
+    before_is_okay = True
     for char in text:
         if got_tilda:
-            if not is_number(char) and not char.__eq__('-'):
+            if not is_number(char) and not char.__eq__('-') and not char.__eq__(')') and not char.__eq__('('):
                 error.tilda_after_tilda()
                 return False
             elif is_number(char):
                 got_tilda = False
-        if char.__eq__('~'):
-            got_tilda = True
+        elif char.__eq__('~'):
+            if before_is_okay:
+                got_tilda = True
+            else:
+                error.tilda_after_tilda()
+        elif char.__eq__('') or char in model.priority_dictionary:
+            before_is_okay = True
+        else:
+            before_is_okay = False
     if got_tilda:
         error.missing_number('~', "after")
         return False
     return True
-
-
-def handle_tilda(text: str):
-    ret = ""
-    num_before = False
-    for char in text:
-        if char.__eq__('~'):
-            if num_before:
-                ret += '-'
-            else:
-                ret += '~'
-                num_before = False
-        elif char.__eq__('-'):
-            if num_before:
-                ret += '-'
-            else:
-                ret += '~'
-                num_before = False
-        elif is_number(char) or char.__eq__('.'):
-            num_before = True
-            ret += char
-        else:
-            num_before = False
-            ret += char
-    return ret
-

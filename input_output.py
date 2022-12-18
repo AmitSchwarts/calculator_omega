@@ -20,7 +20,11 @@ def opening():
 
 def get_input():
     print("Insert an equation: ")
-    return input()
+    try:
+        return input()
+    except EOFError:
+        error.eof_error()
+        get_input()
 
 
 def print_result(result):
