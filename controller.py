@@ -34,7 +34,7 @@ def solve(text: str, priority: int) -> float or str:
         elif not is_number(char) and not char.__eq__('.'):
             error.invalid_character(char)
             return
-    return text
+    return float(text)
 
 
 def before_or_after(operand1: str, operand2: str) -> str:
@@ -57,9 +57,9 @@ def delete_unwonted_chars(text: str) -> tuple:
     if text.__eq__(""):
         error.empty()
         return None, False
-    text = handle_signs(text)
     if not check_tilda(text):
         return None, False
+    text = handle_signs(text)
     if text.__contains__('-'):
         text = add_necessary_parentheses(text, '-')
     if not check_parentheses(text):
@@ -81,6 +81,9 @@ def handle_signs(text: str) -> str:
             if between_two.__eq__(2):
                 text += "+"
         text += check
+    while text.__contains__("~-") or text.__contains__("-~"):
+        text = text.replace("~-", "+")
+        text = text.replace("-~", "+")
     while text.__contains__("+-") or text.__contains__("++") or text.__contains__("-+"):
         text = text.replace("+-", "-")
         text = text.replace("-+", "-")
@@ -99,6 +102,7 @@ def min_priority(text: str) -> int:
 
 def reset():
     model.got_error = False
+    neg = 0
 
 
 def handle_parentheses(text: str) -> str:
@@ -111,11 +115,15 @@ def handle_parentheses(text: str) -> str:
         elif char.__eq__(')'):
             flag_start = False
             ret += str(solve(solv, min_priority(solv)))
-            solv = ""
+            solv = ret
+            ret = ""
+            flag_start = True
         elif flag_start:
             solv += char
         else:
             ret += char
+    if ret.__eq__(""):
+        return solv
     return ret
 
 
@@ -158,7 +166,7 @@ def check_tilda(text: str) -> bool:
                 got_tilda = True
             else:
                 error.tilda_after_tilda()
-        elif char.__eq__('') or char in model.priority_dictionary:
+        elif char.__eq__('') or char in model.priority_dictionary or char.__eq__(')') or char.__eq__('('):
             before_is_okay = True
         else:
             before_is_okay = False
@@ -174,17 +182,20 @@ def sub_or_neg(operand1: str, operand2: str) -> str:
     for char in operand1:
         if not char.__eq__("-") and not char.__eq__("~"):
             return "sub"
+    for char in operand2:
+        if not char.__eq__("-") and not char.__eq__("~"):
+            return "sub"
     return "neg"
 
 
-def add_necessary_parentheses(text: str, char) -> str:
+def add_necessary_parentheses(text: str, char: str) -> str:
     ret = ""
     every_two = 0
     check = text.split(char)
     ret += '('*(len(check)-1)
     for part in check:
-        ret += part
         every_two += 1
+        ret += part
         if every_two.__eq__(2):
             ret += ')'
             every_two = 1
@@ -201,3 +212,10 @@ def how_many_minus(text: str) -> int:
         if char.__eq__("-") or char.__eq__("~"):
             count += 1
     return count
+
+
+def contains_only(text: str, char: str) -> bool:
+    for check in text:
+        if not check.__eq__(char):
+            return False
+    return True
