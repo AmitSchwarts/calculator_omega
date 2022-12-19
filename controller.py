@@ -8,7 +8,7 @@ def solve(text: str, priority: int) -> float or str:
             if model.priority_dictionary[char] == priority:  # operator is in the correct level of priority
                 split = text.split(char, 1)
                 if char in model.functions_dict_middle:
-                    if char not in model.functions_dict_left or sub_or_neg(str(split[0]), str(split[1])).__eq__("sub"):
+                    if char not in model.functions_dict_left or sub_or_neg(str(split[0])).__eq__("sub"):
                         if char in model.functions_dict_left:
                             model.flag_for_sub_test = True
                         operand1 = solve(str(split[0]), min_priority(str(split[0])))
@@ -130,12 +130,12 @@ def handle_signs(text: str) -> str:
         text += check
     while text.__contains__("~-") or text.__contains__("-~"):
         split = text.split("~-", 1)
-        if split[0].__eq__(""):
+        if sub_or_neg(split[0]).__eq__("neg"):
             text = text.replace("~-", "", 1)
         else:
             text = text.replace("~-", "+", 1)
         split = text.split("-~", 1)
-        if split[0].__eq__(""):
+        if sub_or_neg(split[0]).__eq__("neg"):
             text = text.replace("-~", "", 1)
         else:
             text = text.replace("-~", "+", 1)
@@ -260,11 +260,10 @@ def check_tilda(text: str) -> bool:
     return True
 
 
-def sub_or_neg(operand1: str, operand2: str) -> str:
+def sub_or_neg(operand1: str) -> str:
     """
     return if the "-" be use as sub or neg minus
     :param operand1:
-    :param operand2:
     :return:
     """
     if operand1.__eq__(""):
@@ -296,7 +295,6 @@ def add_necessary_parentheses(text: str, char: str) -> str:
         ret += part
         ret += ')'
         ret += char
-    print(ret)
     ret = ret[::-1]
     ret = ret.replace(char, '', 1)
     ret = ret.replace(')', '', 1)

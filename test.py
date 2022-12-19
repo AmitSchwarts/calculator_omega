@@ -105,6 +105,14 @@ def test_simple20():
     assert main.program.equation("100&99/33+1.1^2-(3!+~1)%2+7*7") == 52.21
 
 
+def test_simple21():
+    assert main.program.equation("100 %~10") == 0
+
+
+def test_simple22():
+    assert main.program.equation("3.93127*~-2! * 2$1 \t- 3^(2&2)") == 6.72508
+
+
 def test_error1():
     main.program.equation("1+")
     assert main.controller.model.got_error is True
