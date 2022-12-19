@@ -9,6 +9,8 @@ def solve(text: str, priority: int) -> float or str:
                 split = text.split(char, 1)
                 if char in model.functions_dict_middle:
                     if char not in model.functions_dict_left or sub_or_neg(str(split[0]), str(split[1])).__eq__("sub"):
+                        if sub_or_neg(str(split[0]), str(split[1])).__eq__("sub"):
+                            model.flag_for_the_test = True
                         operand1 = solve(str(split[0]), min_priority(str(split[0])))
                         operand2 = solve(str(split[1]), min_priority(str(split[1])))
                         if are_numbers(str(operand1), str(operand2)):
@@ -34,7 +36,10 @@ def solve(text: str, priority: int) -> float or str:
         elif not is_number(char) and not char.__eq__('.'):
             error.invalid_character(char)
             return
-    return text
+    if model.neg != 0 or model.flag_for_the_test:
+        return float(text)
+    else:
+        return text
 
 
 def before_or_after(operand1: str, operand2: str) -> str:
