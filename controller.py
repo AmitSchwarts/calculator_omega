@@ -9,14 +9,15 @@ def solve(text: str, priority: int) -> float or str:
                 split = text.split(char, 1)
                 if char in model.functions_dict_middle:
                     if char not in model.functions_dict_left or sub_or_neg(str(split[0]), str(split[1])).__eq__("sub"):
-                        if sub_or_neg(str(split[0]), str(split[1])).__eq__("sub"):
-                            model.flag_for_the_test = True
+                        if char in model.functions_dict_left:
+                            model.flag_for_sub_test = True
                         operand1 = solve(str(split[0]), min_priority(str(split[0])))
+                        model.flag_for_sub_test = False
                         operand2 = solve(str(split[1]), min_priority(str(split[1])))
                         if are_numbers(str(operand1), str(operand2)):
                             return model.functions_dict_middle[char](str(operand1), str(operand2))
                         else:
-                            error.missing_number(char, before_or_after(str(operand1), str(operand2)))
+                            error.missing_number(char, before_or_after(str(operand1)))
                             return
                 if char in model.functions_dict_left or char in model.functions_dict_right:
                     if char in model.functions_dict_left:
@@ -28,25 +29,29 @@ def solve(text: str, priority: int) -> float or str:
                             return model.functions_dict_left[char](str(operand2))
                     elif char in model.functions_dict_right:
                         operand1 = solve(split[0], min_priority(split[0]))
-                        if is_number(str(operand1)):
+                        if is_number(str(operand1)) and split[1].__eq__(""):
                             return model.functions_dict_right[char](str(operand1))
+                        elif not split[1].__eq__(""):
+                            slv = str(model.functions_dict_right[char](str(operand1)))
+                            slv += split[1]
+                            return solve(slv, min_priority(slv))
                     else:
-                        error.missing_number(char, before_or_after(str(operand1), str(operand2)))
+                        error.missing_number(char, before_or_after(str(operand1)))
                         return
         elif not is_number(char) and not char.__eq__('.'):
             error.invalid_character(char)
             return
-    if model.neg != 0 or model.flag_for_the_test:
+    if model.got_error:
+        return
+    elif model.neg != 0 or model.flag_for_sub_test:
         return float(text)
-    else:
-        return text
+    return text
 
 
-def before_or_after(operand1: str, operand2: str) -> str:
+def before_or_after(operand1: str,) -> str:
     """
     return if num is missing before or after the operator
     :param operand1:
-    :param operand2:
     :return:
     """
     if is_number(operand1):
@@ -70,6 +75,10 @@ def is_number(operand: str) -> bool:
     :param operand:
     :return:
     """
+    if operand.__contains__('-'):
+        if not operand.split('-', 1)[0].__eq__("") and not contains_only(operand.split('-', 1)[0], '~')\
+                and not contains_only(operand.split('-', 1)[0], '-'):
+            return False
     return operand.replace('.', '').replace('-', '').isdigit()
 
 
@@ -88,8 +97,12 @@ def delete_unwonted_chars(text: str) -> tuple:
     if not check_tilda(text):
         return None, False
     text = handle_signs(text)
-    if text.__contains__('-'):
+    if check_parentheses(text):
+        text = handle_parentheses(text)
+    if text.count('-') > 1:
         text = add_necessary_parentheses(text, '-')
+    if text.count('+') > 1:
+        text = add_necessary_parentheses(text, '+')
     if not check_parentheses(text):
         return None, False
     return handle_parentheses(text), True
@@ -116,8 +129,16 @@ def handle_signs(text: str) -> str:
                 text += "+"
         text += check
     while text.__contains__("~-") or text.__contains__("-~"):
-        text = text.replace("~-", "+")
-        text = text.replace("-~", "+")
+        split = text.split("~-", 1)
+        if split[0].__eq__(""):
+            text = text.replace("~-", "", 1)
+        else:
+            text = text.replace("~-", "+", 1)
+        split = text.split("-~", 1)
+        if split[0].__eq__(""):
+            text = text.replace("-~", "", 1)
+        else:
+            text = text.replace("-~", "+", 1)
     while text.__contains__("+-") or text.__contains__("++") or text.__contains__("-+"):
         text = text.replace("+-", "-")
         text = text.replace("-+", "-")
@@ -145,7 +166,8 @@ def reset():
     :return:
     """
     model.got_error = False
-    neg = 0
+    model.neg = 0
+    model.flag_for_sub_test = False
 
 
 def handle_parentheses(text: str) -> str:
@@ -247,13 +269,16 @@ def sub_or_neg(operand1: str, operand2: str) -> str:
     """
     if operand1.__eq__(""):
         return "neg"
+    neg_flag = True
     for char in operand1:
         if not char.__eq__("-") and not char.__eq__("~"):
-            return "sub"
-    for char in operand2:
-        if not char.__eq__("-") and not char.__eq__("~"):
-            return "sub"
-    return "neg"
+            neg_flag = False
+    if neg_flag:
+        return "neg"
+    rev = operand1[::-1]
+    if rev[0] in model.functions_dict_middle:
+        return "neg"
+    return "sub"
 
 
 def add_necessary_parentheses(text: str, char: str) -> str:
@@ -265,18 +290,16 @@ def add_necessary_parentheses(text: str, char: str) -> str:
     :return:
     """
     ret = ""
-    every_two = 0
     check = text.split(char)
     ret += '('*(len(check)-1)
     for part in check:
-        every_two += 1
         ret += part
-        if every_two.__eq__(2):
-            ret += ')'
-            every_two = 1
+        ret += ')'
         ret += char
+    print(ret)
     ret = ret[::-1]
     ret = ret.replace(char, '', 1)
+    ret = ret.replace(')', '', 1)
     ret = ret[::-1]
     return ret
 

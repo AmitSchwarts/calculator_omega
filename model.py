@@ -10,4 +10,4 @@ functions_dict_left = {'~': calculate.neg, '-': calculate.neg}
 functions_dict_right = {'!': calculate.factorial, '#': calculate.sum_digits}
 got_error = False
 neg = 0
-flag_for_the_test = False
+flag_for_sub_test = False

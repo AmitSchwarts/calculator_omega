@@ -13,7 +13,6 @@ class program(unittest.TestCase):
         input_output.opening()
         text = input_output.get_input()
         while not text.__eq__("end"):
-            controller.reset()
             ret = program.equation(text)
             if controller.is_number(str(ret)) and not controller.model.got_error:
                 input_output.print_result(ret)
@@ -27,14 +26,15 @@ class program(unittest.TestCase):
         :param text: to solve
         :return: the answer
         """
+        controller.reset()
         text, check = controller.delete_unwonted_chars(text)
         if check:
             if controller.is_number(text):
-                ret = text
-            ret = controller.solve(text, controller.min_priority(text))
+                ret = float(text)
+            else:
+                ret = controller.solve(text, controller.min_priority(text))
         if not controller.model.got_error:
             return ret
-        controller.reset()
 
 
 if __name__ == "__main__":

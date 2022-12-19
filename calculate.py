@@ -79,22 +79,7 @@ def factorial(operand: str) -> int:
 
 def sum_digits(operand: str) -> int:
     ret = 0
-    check_after = False
     for char in operand:
-        if not char.__eq__('.') and not check_after:  # check only what can be int, not float
+        if not char.__eq__('.'):
             ret += float(char)
-        elif char.__eq__('.'):
-            check_after = True
-        elif check_after:
-            if not char.__eq__('0'):
-                error.operand_not_int("sum_digits", operand)
-                return
-    while ret >= 10:
-        work_on = str(ret)
-        ret = 0
-        for char in work_on:
-            if not char.__eq__('.'):
-                ret += float(char)
-            else:
-                break
     return ret
